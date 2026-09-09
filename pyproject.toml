@@ -8,8 +8,13 @@ authors = [
 ]
 requires-python = ">=3.11"
 dependencies = [
+    "bcrypt>=5.0.0",
     "fastapi>=0.141.1",
+    "fastauth-py>=0.14.1",
+    "passlib>=1.7.4",
     "prisma>=0.15.0",
+    "python-jose[cryptography]>=3.5.0",
+    "python-multipart>=0.0.32",
     "uvicorn[standard]>=0.52.4",
 ]
 
