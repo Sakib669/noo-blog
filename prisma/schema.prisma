@@ -1,0 +1,63 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider             = "prisma-client-py"
+  recursive_type_depth = 5
+}
+
+model User {
+  id  String @id @default(uuid())
+  email String @unique
+  username String @unique
+  password String
+  fullName String @map("full_name")
+  bio String? @db.Text
+  avatar String ?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  posts Post[]
+  comments Comment[]
+
+  @@map("users")
+}
+
+model Post {
+  id String @id @default(uuid())
+  title String
+  slug String @unique
+  content String? @db.Text
+  summary String? @db.Text
+  coverImage String? @map("cover_image")
+  published Boolean @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  views Int @default(0)
+  tags String[] 
+
+  authorId String @map("author_id")
+  author User @relation(fields: [authorId], references: [id])
+
+  comments Comment[]
+
+  @@map("posts")
+}
+
+model Comment {
+  id String @id @default(uuid())
+  content String @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  authorId String @map("author_id")
+  author User @relation(fields: [authorId], references: [id])
+
+  postId String @map("post_id")
+  post Post @relation(fields: [postId], references: [id])
+
+  @@map("comments")
+}
