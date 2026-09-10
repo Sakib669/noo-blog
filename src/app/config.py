@@ -6,7 +6,9 @@ load_dotenv()
 
 class Settings:
     DATABASE_URL: str = os.getenv("DATABASE_URL", "")
-    FASTAUTH_SECRET: str = os.getenv("FASTAUTH_SECRET", "change-me-in-production")
+    JWT_SECRET_KEY: str = os.getenv("JWT_SECRET_KEY", "change-me")
+    JWT_ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "10080"))
 
 
 settings = Settings()
