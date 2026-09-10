@@ -9,38 +9,37 @@ generator client {
 }
 
 model User {
-  id  String @id @default(uuid())
-  email String @unique
-  username String @unique
-  password String
-  fullName String @map("full_name")
-  bio String? @db.Text
-  avatar String ?
-  createdAt DateTime @default(now()) @map("created_at")
+  id         String   @id @default(uuid())
+  email      String   @unique
+  username   String   @unique
+  password   String
+  full_name  String
+  bio        String?  @db.Text
+  avatar     String?
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  posts Post[]
+  posts    Post[]
   comments Comment[]
 
   @@map("users")
 }
 
 model Post {
-  id String @id @default(uuid())
-  title String
-  slug String @unique
-  content String? @db.Text
-  summary String? @db.Text
-  coverImage String? @map("cover_image")
-  published Boolean @default(false)
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-  views Int @default(0)
-  tags String[] 
+  id          String   @id @default(uuid())
+  title       String
+  slug        String   @unique
+  content     String?  @db.Text
+  summary     String?  @db.Text
+  cover_image String?
+  published   Boolean  @default(false)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  views       Int      @default(0)
+  tags        String[]
 
-  authorId String @map("author_id")
-  author User @relation(fields: [authorId], references: [id])
+  author_id String
+  author    User   @relation(fields: [author_id], references: [id])
 
   comments Comment[]
 
@@ -48,16 +47,16 @@ model Post {
 }
 
 model Comment {
-  id String @id @default(uuid())
-  content String @db.Text
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id         String   @id @default(uuid())
+  content    String   @db.Text
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
-  authorId String @map("author_id")
-  author User @relation(fields: [authorId], references: [id])
+  author_id String
+  author    User   @relation(fields: [author_id], references: [id])
 
-  postId String @map("post_id")
-  post Post @relation(fields: [postId], references: [id])
+  post_id String
+  post    Post   @relation(fields: [post_id], references: [id])
 
   @@map("comments")
 }

@@ -1,17 +1,17 @@
-from pydanctic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field
 from typing import Optional
 
 
 class UserRegister(BaseModel):
     email: EmailStr
     username: str = Field(..., min_length=3, max_length=20)
-    password: str = Field(..., min_length=8, max_length=20)
-    full_name: str = Field(..., min_length=3, max_length=50)
+    password: str = Field(..., min_length=6)
+    full_name: str = Field(..., min_length=2)
 
 
 class UserLogin(BaseModel):
     email: EmailStr
-    password: str = Field(..., min_length=8, max_length=20)
+    password: str
 
 
 class UserResponse(BaseModel):
