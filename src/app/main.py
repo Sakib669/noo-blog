@@ -1,26 +1,78 @@
+# ---------------------------------------------------------------------------
+# Application entry point
+# ---------------------------------------------------------------------------
+# Responsibilities:
+#   1. Manage the Prisma client lifecycle (connect on startup, disconnect
+#      on shutdown) via FastAPI's `lifespan` context manager.
+#   2. Create the FastAPI app instance.
+#   3. Mount all routers under the /api/v1 prefix.
+#   4. Define any top-level routes (like `/`).
+#
+# Run with:
+#   uv run uvicorn src.app.main:app --reload
+# ---------------------------------------------------------------------------
+
 from contextlib import asynccontextmanager
+# asynccontextmanager → turns an async generator into an object usable
+# with `async with`, which FastAPI uses for the lifespan hook.
 
 from fastapi import FastAPI
+# The web framework class. One instance = one ASGI app.
 
 from .prisma import prisma
-from .routes import auth, posts
+# Single shared Prisma client. Imported everywhere we need DB access.
+# We don't create it here — it's created once in prisma.py and reused.
+
+from .routes import auth, comments, posts
+# Our three route modules. Each exposes a `router` (an APIRouter).
+#   auth     → /auth/register, /auth/login, /auth/me
+#   posts    → /posts/... CRUD
+#   comments → /posts/{id}/comments, /comments/{id}
 
 
+# ---------------------------------------------------------------------------
+# LIFESPAN — startup & shutdown hooks
+# ---------------------------------------------------------------------------
+# Before this runs, nothing can touch the DB.
+# After this yields, the server is accepting requests.
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    await prisma.connect()
+    # ---- Startup ----
+    await prisma.connect()  # open the pool / engine connection
     print("✅ Database connected")
-    yield
-    await prisma.disconnect()
+
+    yield  # <-- server runs while we're paused here
+
+    # ---- Shutdown ----
+    await prisma.disconnect()  # close cleanly (important for tests)
     print("✅ Database disconnected")
 
 
-app = FastAPI(lifespan=lifespan, title="Noo Blog API")
+# ---------------------------------------------------------------------------
+# APP INSTANCE
+# ---------------------------------------------------------------------------
+# title → shown in /docs (Swagger UI).
+# lifespan → wires in the startup/shutdown hooks above.
+app = FastAPI(
+    lifespan=lifespan,
+    title="Noo Blog API",
+)
 
+
+# ---------------------------------------------------------------------------
+# ROUTERS
+# ---------------------------------------------------------------------------
+# Every router is mounted under /api/v1 so we can version the API later
+# (e.g. add /api/v2 without touching v1 clients).
 app.include_router(auth.router, prefix="/api/v1")
 app.include_router(posts.router, prefix="/api/v1")
+app.include_router(comments.router, prefix="/api/v1")
 
 
+# ---------------------------------------------------------------------------
+# ROOT ROUTE — sanity check
+# ---------------------------------------------------------------------------
+# Hit http://localhost:8000/ to confirm the server is alive.
 @app.get("/")
 async def root():
     return {"message": "Noo Blog API 🚀"}
