@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/auth-context";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -13,9 +14,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { PenSquare, Sparkles, User as UserIcon, LogOut } from "lucide-react";
+import { cn } from "cn";
 
 export function Navbar() {
   const { user, logout, isLoading } = useAuth();
+  const router = useRouter();
 
   const getInitials = (name: string) => {
     return name
@@ -50,15 +53,16 @@ export function Navbar() {
             <>
               {user ? (
                 <>
-                  <Button asChild variant="default" size="sm" className="gap-2">
-                    <Link href="/posts/new">
-                      <PenSquare className="h-4 w-4" />
-                      <span>Write</span>
-                    </Link>
-                  </Button>
+                  <Link
+                    href="/posts/new"
+                    className={cn(buttonVariants({ variant: "default", size: "sm" }), "gap-2")}
+                  >
+                    <PenSquare className="h-4 w-4" />
+                    <span>Write</span>
+                  </Link>
 
                   <DropdownMenu>
-                    <DropdownMenuTrigger className="focus:outline-none">
+                    <DropdownMenuTrigger className="focus:outline-none cursor-pointer">
                       <Avatar className="h-9 w-9 ring-2 ring-primary/20 hover:ring-primary/40 transition">
                         <AvatarImage src={user.avatar || ""} alt={user.full_name} />
                         <AvatarFallback>{getInitials(user.full_name)}</AvatarFallback>
@@ -74,11 +78,12 @@ export function Navbar() {
                         </div>
                       </DropdownMenuLabel>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem asChild>
-                        <Link href="/profile" className="flex items-center gap-2 cursor-pointer">
-                          <UserIcon className="h-4 w-4" />
-                          <span>Profile & Settings</span>
-                        </Link>
+                      <DropdownMenuItem
+                        onClick={() => router.push("/profile")}
+                        className="flex items-center gap-2 cursor-pointer"
+                      >
+                        <UserIcon className="h-4 w-4" />
+                        <span>Profile & Settings</span>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
@@ -93,12 +98,18 @@ export function Navbar() {
                 </>
               ) : (
                 <div className="flex items-center gap-2">
-                  <Button asChild variant="ghost" size="sm">
-                    <Link href="/login">Log in</Link>
-                  </Button>
-                  <Button asChild size="sm">
-                    <Link href="/register">Sign up</Link>
-                  </Button>
+                  <Link
+                    href="/login"
+                    className={buttonVariants({ variant: "ghost", size: "sm" })}
+                  >
+                    Log in
+                  </Link>
+                  <Link
+                    href="/register"
+                    className={buttonVariants({ size: "sm" })}
+                  >
+                    Sign up
+                  </Link>
                 </div>
               )}
             </>

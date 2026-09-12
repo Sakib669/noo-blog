@@ -5,12 +5,13 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/auth-context";
 import { api } from "@/lib/api";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Loader2, PenSquare, ArrowLeft } from "lucide-react";
+import { cn } from "cn";
 
 export default function NewPostPage() {
   const { user, isLoading: isAuthLoading } = useAuth();
@@ -38,12 +39,12 @@ export default function NewPostPage() {
           You must be logged in to create and publish articles.
         </p>
         <div className="flex justify-center gap-3 pt-2">
-          <Button asChild>
-            <Link href="/login">Log in</Link>
-          </Button>
-          <Button asChild variant="outline">
-            <Link href="/register">Sign up</Link>
-          </Button>
+          <Link href="/login" className={buttonVariants()}>
+            Log in
+          </Link>
+          <Link href="/register" className={buttonVariants({ variant: "outline" })}>
+            Sign up
+          </Link>
         </div>
       </div>
     );
@@ -87,12 +88,13 @@ export default function NewPostPage() {
 
   return (
     <div className="container max-w-3xl mx-auto px-4 py-10 space-y-6">
-      <Button asChild variant="ghost" size="sm" className="gap-2 text-muted-foreground">
-        <Link href="/">
-          <ArrowLeft className="h-4 w-4" />
-          <span>Back to articles</span>
-        </Link>
-      </Button>
+      <Link
+        href="/"
+        className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "gap-2 text-muted-foreground")}
+      >
+        <ArrowLeft className="h-4 w-4" />
+        <span>Back to articles</span>
+      </Link>
 
       <Card className="border-border/60 shadow-sm">
         <CardHeader>
@@ -169,9 +171,9 @@ export default function NewPostPage() {
             </div>
 
             <div className="flex justify-end gap-3 pt-2">
-              <Button asChild variant="outline" disabled={isSubmitting}>
-                <Link href="/">Cancel</Link>
-              </Button>
+              <Link href="/" className={buttonVariants({ variant: "outline" })}>
+                Cancel
+              </Link>
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting ? (
                   <>

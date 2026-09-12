@@ -4,14 +4,14 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/context/auth-context";
 import { api } from "@/lib/api";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import { Loader2, User, KeyRound, ArrowLeft } from "lucide-react";
+import { Loader2, KeyRound, ArrowLeft } from "lucide-react";
+import { cn } from "cn";
 
 export default function ProfilePage() {
   const { user, updateUser, isLoading } = useAuth();
@@ -46,9 +46,9 @@ export default function ProfilePage() {
       <div className="container max-w-md mx-auto px-4 py-16 text-center space-y-4">
         <h2 className="text-2xl font-bold">Please Log In</h2>
         <p className="text-muted-foreground text-sm">You must be logged in to view and edit your profile.</p>
-        <Button asChild>
-          <Link href="/login">Log in</Link>
-        </Button>
+        <Link href="/login" className={buttonVariants()}>
+          Log in
+        </Link>
       </div>
     );
   }
@@ -104,12 +104,13 @@ export default function ProfilePage() {
 
   return (
     <div className="container max-w-3xl mx-auto px-4 py-10 space-y-8">
-      <Button asChild variant="ghost" size="sm" className="gap-2 text-muted-foreground">
-        <Link href="/">
-          <ArrowLeft className="h-4 w-4" />
-          <span>Back to articles</span>
-        </Link>
-      </Button>
+      <Link
+        href="/"
+        className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "gap-2 text-muted-foreground")}
+      >
+        <ArrowLeft className="h-4 w-4" />
+        <span>Back to articles</span>
+      </Link>
 
       {/* Profile Overview Card */}
       <Card className="border-border/60">

@@ -1,14 +1,15 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Post } from "@/types";
 import { api } from "@/lib/api";
 import { PostCard } from "@/components/post-card";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Search, Sparkles, PenSquare, BookOpen, AlertCircle } from "lucide-react";
+import { cn } from "cn";
 
 export default function HomePage() {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -16,7 +17,6 @@ export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [isPending, startTransition] = useTransition();
 
   const fetchPosts = async (search?: string, tag?: string) => {
     setIsLoading(true);
@@ -27,7 +27,7 @@ export default function HomePage() {
         tag: tag || undefined,
       });
       setPosts(data);
-    } catch (err: any) {
+    } catch {
       setError("Could not load posts. Make sure the backend server is running.");
     } finally {
       setIsLoading(false);
@@ -126,12 +126,13 @@ export default function HomePage() {
               {posts.length} {posts.length === 1 ? "article" : "articles"} published
             </p>
           </div>
-          <Button asChild variant="outline" size="sm" className="gap-2">
-            <Link href="/posts/new">
-              <PenSquare className="h-4 w-4" />
-              <span>Create Post</span>
-            </Link>
-          </Button>
+          <Link
+            href="/posts/new"
+            className={cn(buttonVariants({ variant: "outline", size: "sm" }), "gap-2")}
+          >
+            <PenSquare className="h-4 w-4" />
+            <span>Create Post</span>
+          </Link>
         </div>
 
         {error && (
@@ -190,9 +191,9 @@ export default function HomePage() {
                   Clear Search
                 </Button>
               )}
-              <Button asChild>
-                <Link href="/posts/new">Write an article</Link>
-              </Button>
+              <Link href="/posts/new" className={buttonVariants()}>
+                Write an article
+              </Link>
             </div>
           </div>
         ) : (

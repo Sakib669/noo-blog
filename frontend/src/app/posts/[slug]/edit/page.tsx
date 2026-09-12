@@ -6,12 +6,13 @@ import Link from "next/link";
 import { useAuth } from "@/context/auth-context";
 import { api } from "@/lib/api";
 import { Post } from "@/types";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Loader2, ArrowLeft, Save } from "lucide-react";
+import { cn } from "cn";
 
 export default function EditPostPage() {
   const params = useParams();
@@ -39,7 +40,7 @@ export default function EditPostPage() {
         setContent(data.content);
         setCoverImage(data.cover_image || "");
         setTagInput(data.tags?.join(", ") || "");
-      } catch (err: any) {
+      } catch {
         toast.error("Failed to load article");
       } finally {
         setIsLoadingPost(false);
@@ -65,9 +66,9 @@ export default function EditPostPage() {
         <p className="text-muted-foreground text-sm">
           You are not authorized to edit this article.
         </p>
-        <Button asChild>
-          <Link href="/">Back to Home</Link>
-        </Button>
+        <Link href="/" className={buttonVariants()}>
+          Back to Home
+        </Link>
       </div>
     );
   }
@@ -76,9 +77,9 @@ export default function EditPostPage() {
     return (
       <div className="container max-w-md mx-auto px-4 py-16 text-center space-y-4">
         <h2 className="text-2xl font-bold">Article not found</h2>
-        <Button asChild>
-          <Link href="/">Back to Home</Link>
-        </Button>
+        <Link href="/" className={buttonVariants()}>
+          Back to Home
+        </Link>
       </div>
     );
   }
@@ -121,12 +122,13 @@ export default function EditPostPage() {
 
   return (
     <div className="container max-w-3xl mx-auto px-4 py-10 space-y-6">
-      <Button asChild variant="ghost" size="sm" className="gap-2 text-muted-foreground">
-        <Link href={`/posts/${post.slug}`}>
-          <ArrowLeft className="h-4 w-4" />
-          <span>Back to article</span>
-        </Link>
-      </Button>
+      <Link
+        href={`/posts/${post.slug}`}
+        className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "gap-2 text-muted-foreground")}
+      >
+        <ArrowLeft className="h-4 w-4" />
+        <span>Back to article</span>
+      </Link>
 
       <Card className="border-border/60 shadow-sm">
         <CardHeader>
@@ -189,13 +191,13 @@ export default function EditPostPage() {
             </div>
 
             <div className="flex justify-end gap-3 pt-2">
-              <Button asChild variant="outline" disabled={isSubmitting}>
-                <Link href={`/posts/${post.slug}`}>Cancel</Link>
-              </Button>
+              <Link href={`/posts/${post.slug}`} className={buttonVariants({ variant: "outline" })}>
+                Cancel
+              </Link>
               <Button type="submit" disabled={isSubmitting} className="gap-2">
                 {isSubmitting ? (
                   <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     <span>Saving...</span>
                   </>
                 ) : (

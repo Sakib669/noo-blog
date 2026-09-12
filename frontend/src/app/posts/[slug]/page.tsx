@@ -6,7 +6,7 @@ import Link from "next/link";
 import { Comment, Post } from "@/types";
 import { api } from "@/lib/api";
 import { useAuth } from "@/context/auth-context";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -34,6 +34,7 @@ import {
   Send,
   Share2,
 } from "lucide-react";
+import { cn } from "cn";
 
 export default function PostDetailPage() {
   const params = useParams();
@@ -61,7 +62,7 @@ export default function PostDetailPage() {
 
         const commentsData = await api.getComments(postData.id);
         setComments(commentsData);
-      } catch (err: any) {
+      } catch {
         toast.error("Could not load the article");
       } finally {
         setIsLoading(false);
@@ -148,9 +149,9 @@ export default function PostDetailPage() {
       <div className="container max-w-2xl mx-auto px-4 py-16 text-center space-y-4">
         <h2 className="text-2xl font-bold">Article not found</h2>
         <p className="text-muted-foreground">The article you are looking for does not exist or has been removed.</p>
-        <Button asChild>
-          <Link href="/">Return to Home</Link>
-        </Button>
+        <Link href="/" className={buttonVariants()}>
+          Return to Home
+        </Link>
       </div>
     );
   }
@@ -174,12 +175,13 @@ export default function PostDetailPage() {
     <article className="container max-w-3xl mx-auto px-4 py-10 space-y-8">
       {/* Back button */}
       <div>
-        <Button asChild variant="ghost" size="sm" className="gap-2 text-muted-foreground">
-          <Link href="/">
-            <ArrowLeft className="h-4 w-4" />
-            <span>Back to articles</span>
-          </Link>
-        </Button>
+        <Link
+          href="/"
+          className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "gap-2 text-muted-foreground")}
+        >
+          <ArrowLeft className="h-4 w-4" />
+          <span>Back to articles</span>
+        </Link>
       </div>
 
       {/* Header */}
@@ -232,19 +234,20 @@ export default function PostDetailPage() {
 
             {isAuthor && (
               <>
-                <Button asChild variant="outline" size="sm" className="gap-1 text-xs">
-                  <Link href={`/posts/${post.slug}/edit`}>
-                    <Edit className="h-3.5 w-3.5" />
-                    <span>Edit</span>
-                  </Link>
-                </Button>
+                <Link
+                  href={`/posts/${post.slug}/edit`}
+                  className={cn(buttonVariants({ variant: "outline", size: "sm" }), "gap-1 text-xs")}
+                >
+                  <Edit className="h-3.5 w-3.5" />
+                  <span>Edit</span>
+                </Link>
 
                 <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button variant="destructive" size="sm" className="gap-1 text-xs">
-                      <Trash2 className="h-3.5 w-3.5" />
-                      <span>Delete</span>
-                    </Button>
+                  <DialogTrigger
+                    className={cn(buttonVariants({ variant: "destructive", size: "sm" }), "gap-1 text-xs cursor-pointer")}
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                    <span>Delete</span>
                   </DialogTrigger>
                   <DialogContent>
                     <DialogHeader>
