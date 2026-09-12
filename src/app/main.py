@@ -23,7 +23,7 @@ from .prisma import prisma
 # Single shared Prisma client. Imported everywhere we need DB access.
 # We don't create it here — it's created once in prisma.py and reused.
 
-from .routes import auth, comments, posts
+from .routes import auth, comments, posts, users
 # Our three route modules. Each exposes a `router` (an APIRouter).
 #   auth     → /auth/register, /auth/login, /auth/me
 #   posts    → /posts/... CRUD
@@ -67,7 +67,7 @@ app = FastAPI(
 app.include_router(auth.router, prefix="/api/v1")
 app.include_router(posts.router, prefix="/api/v1")
 app.include_router(comments.router, prefix="/api/v1")
-
+app.include_router(users.router,    prefix="/api/v1")
 
 # ---------------------------------------------------------------------------
 # ROOT ROUTE — sanity check
