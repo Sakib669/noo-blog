@@ -59,6 +59,8 @@ async def lifespan(app: FastAPI):
     print("[Database] Disconnected successfully")
 
 
+from fastapi.middleware.cors import CORSMiddleware
+
 # ---------------------------------------------------------------------------
 # APP INSTANCE
 # ---------------------------------------------------------------------------
@@ -67,6 +69,14 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     lifespan=lifespan,
     title="Noo Blog API",
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
