@@ -12,6 +12,15 @@
 #   uv run uvicorn src.app.main:app --reload
 # ---------------------------------------------------------------------------
 
+import sys
+
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+        sys.stderr.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
+
 from contextlib import asynccontextmanager
 # asynccontextmanager → turns an async generator into an object usable
 # with `async with`, which FastAPI uses for the lifespan hook.
@@ -38,14 +47,16 @@ from .routes import auth, comments, posts, users
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # ---- Startup ----
-    await prisma.connect()  # open the pool / engine connection
-    print("✅ Database connected")
+    if not prisma.is_connected():
+        await prisma.connect()  # open the pool / engine connection
+    print("[Database] Connected successfully")
 
     yield  # <-- server runs while we're paused here
 
     # ---- Shutdown ----
-    await prisma.disconnect()  # close cleanly (important for tests)
-    print("✅ Database disconnected")
+    if prisma.is_connected():
+        await prisma.disconnect()  # close cleanly (important for tests)
+    print("[Database] Disconnected successfully")
 
 
 # ---------------------------------------------------------------------------
