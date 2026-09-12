@@ -7,6 +7,7 @@ from typing import List, Optional
 
 from ..dependencies import get_current_user
 from ..prisma import prisma
+from ..services.ai_service import SummarizationError, summarize_text
 
 router = APIRouter(prefix="/posts", tags=["posts"])
 
@@ -190,6 +191,68 @@ async def toggle_publish(post_id: str, user=Depends(get_current_user)):  # noqa:
     updated = await prisma.post.update(
         where={"id": post_id},
         data={"published": not post.published},
+        include={"author": True},
+    )
+    return _to_response(updated)
+
+
+@router.post("/{post_id}/summarize", response_model=PostResponse)
+async def summarize_post(
+    post_id: str,
+    force: bool = False,
+    user=Depends(get_current_user),  # noqa: B008
+):
+    """Generate an AI summary for a post and save it to the DB.
+
+    - Only the author may trigger this.
+    - If a summary already exists, it is returned as-is — unless
+      `?force=true` is passed, which regenerates it.
+
+    The expensive LLM call happens inline; for a first version this is
+    fine. If you later expect heavy traffic, move it to a background
+    worker (Celery / RQ / FastAPI BackgroundTasks) and return 202.
+    """
+    # (a) Fetch the post — we need its content and its author.
+    post = await prisma.post.find_unique(where={"id": post_id})
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+
+    # (b) Authorization: only the author can summarize their own post.
+    #     This avoids strangers burning your LLM quota on someone else's
+    #     content.
+    if post.author_id != user.id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+
+    # (c) If a summary already exists and force isn't set, return cached.
+    #     `force` is a query param → /posts/{id}/summarize?force=true
+    if post.summary and not force:
+        # Re-fetch with author included so the response matches PostResponse.
+        post_with_author = await prisma.post.find_unique(
+            where={"id": post_id},
+            include={"author": True},
+        )
+        return _to_response(post_with_author)
+
+    # (d) Guard: can't summarize a post with no content.
+    if not post.content or not post.content.strip():
+        raise HTTPException(
+            status_code=400,
+            detail="Post has no content to summarize",
+        )
+
+    # (e) Call the AI service. This is the slow part (1–5 s).
+    try:
+        summary = await summarize_text(post.content)
+    except SummarizationError as exc:
+        # 502 Bad Gateway = "our upstream (the LLM) failed".
+        # This is more accurate than 500 — the problem isn't our server.
+        raise HTTPException(status_code=502, detail=str(exc))
+
+    # (f) Persist the summary on the post row, then re-fetch with author
+    #     included so the response includes the author block.
+    updated = await prisma.post.update(
+        where={"id": post_id},
+        data={"summary": summary},
         include={"author": True},
     )
     return _to_response(updated)
