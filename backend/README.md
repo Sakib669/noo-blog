@@ -50,8 +50,9 @@ uv run prisma generate
 
 ### 3. Run the Development Server
 ```powershell
-uv run uvicorn src.app.main:app --reload --port 8000
+uv run uvicorn src.app.main:app --reload
 ```
+- Server automatically watches `src/` (configured via `.venv/sitecustomize.py` to prevent Windows file-lock/reload issues).
 - API Base: `http://127.0.0.1:8000`
 - Interactive Swagger UI: `http://127.0.0.1:8000/docs`
 - ReDoc: `http://127.0.0.1:8000/redoc`
