@@ -28,6 +28,8 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 # The web framework class. One instance = one ASGI app.
 
+from .config import settings
+
 from .prisma import prisma
 # Single shared Prisma client. Imported everywhere we need DB access.
 # We don't create it here — it's created once in prisma.py and reused.
@@ -73,7 +75,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_origins=settings.CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -88,7 +90,8 @@ app.add_middleware(
 app.include_router(auth.router, prefix="/api/v1")
 app.include_router(posts.router, prefix="/api/v1")
 app.include_router(comments.router, prefix="/api/v1")
-app.include_router(users.router,    prefix="/api/v1")
+app.include_router(users.router, prefix="/api/v1")
+
 
 # ---------------------------------------------------------------------------
 # ROOT ROUTE — sanity check
